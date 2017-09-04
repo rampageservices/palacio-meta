@@ -23,17 +23,16 @@ docker run -ti --volume=${PWD}/shared:/home/build/shared --tmpfs=/tmp gmacario/b
 Running build process inside the container:
 ```shell
 cd shared/yocto
-repo init -u https://github.com/rockchip-linux/manifests -b yocto
+repo init -u git@github.com:rampageservices/palacio-manifest.git -b palacio
 repo sync
-MACHINE="tinker-rk3288" DISTRO="rk-wayland" . setup-environment -b build-wayland/
-bitbake qt5-image
+MACHINE="palacio-rk3288" DISTRO="palacio-wayland" . setup-environment -b build-wayland/
 bitbake palacio-image
 ```
 
 # Flashing the image
 
 ```shell
-dd if=./shared/rk-yocto-bsp/build-wayland/tmp/deploy/images/tinker-rk3288/qt5-image-tinker-rk3288-gpt.img of=/dev/mmcblk0 bs=4M
+dd if=./shared/rk-yocto-bsp/build-wayland/tmp/deploy/images/palacio-rk3288/palacio-image-palacio-rk3288-gpt.img of=/dev/mmcblk0 bs=4M
 ```
 
 # Known issues
