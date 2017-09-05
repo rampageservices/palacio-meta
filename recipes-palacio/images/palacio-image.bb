@@ -8,7 +8,7 @@ do_rootfs[depends] += "virtual/kernel:do_populate_sysroot"
 require recipes-rk/images/rk-image-base.bb
 #require recipes-core/images/rockchip-basic-image.bb
 #require recipes-rk/images/rk-image-multimedia.bb
-require recipes-graphics/images/core-image-weston.bb
+#require recipes-graphics/images/core-image-weston.bb
 
 #IMAGE_FEATURES_remove = "splash"
 
