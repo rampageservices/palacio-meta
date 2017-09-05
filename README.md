@@ -20,12 +20,35 @@ mkdir -p shared/yocto 2>/dev/null
 docker run -ti --volume=${PWD}/shared:/home/build/shared --tmpfs=/tmp gmacario/build-yocto
 ```
 
-Running build process inside the container:
+Configuring build configuration inside the container:
 ```shell
 cd shared/yocto
 repo init -u git@github.com:rampageservices/palacio-manifest.git -b palacio
 repo sync
 MACHINE="palacio-rk3288" DISTRO="palacio-wayland" . setup-environment -b build-wayland/
+```
+Open conf/bblayers.conf in your favorite editor and meta-palacio layer to BBLAYERS.
+It should look like this:
+```
+BBLAYERS = " \
+  ${BSPDIR}/sources/poky/meta \
+  ${BSPDIR}/sources/poky/meta-poky \
+  \
+  ${BSPDIR}/sources/meta-openembedded/meta-oe \
+  ${BSPDIR}/sources/meta-openembedded/meta-multimedia \
+  ${BSPDIR}/sources/meta-openembedded/meta-networking \
+  ${BSPDIR}/sources/meta-openembedded/meta-filesystems \
+  ${BSPDIR}/sources/meta-openembedded/meta-python \
+  ${BSPDIR}/sources/meta-qt5 \
+  \
+  ${BSPDIR}/sources/meta-rockchip \
+  ${BSPDIR}/sources/meta-rockchip-extra \
+  ${BSPDIR}/sources/meta-palacio \
+"
+```
+
+Build the image:
+```shell
 bitbake palacio-image
 ```
 
