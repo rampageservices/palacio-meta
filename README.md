@@ -16,16 +16,15 @@ docker build -t gmacario/build-yocto build-yocto/
 
 Launch container:
 ```shell
-mkdir -p shared/yocto 2>/dev/null
-docker run -ti --volume=${PWD}/shared:/home/build/shared --tmpfs=/tmp gmacario/build-yocto
+docker run -ti --volume=${PWD}:/home/build/shared --tmpfs=/tmp gmacario/build-yocto
 ```
 
 Configuring build configuration inside the container:
 ```shell
-cd shared/yocto
+cd shared
 repo init -u git@github.com:rampageservices/palacio-manifest.git -b palacio
 repo sync
-MACHINE="palacio-rk3288" DISTRO="palacio-wayland" . setup-environment -b build-wayland/
+MACHINE="palacio-rk3288" DISTRO="palacio-none" . setup-environment -b build
 ```
 Open conf/bblayers.conf in your favorite editor and meta-palacio layer to BBLAYERS.
 It should look like this:
