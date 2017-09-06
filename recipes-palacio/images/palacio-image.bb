@@ -5,12 +5,10 @@ LICENSE = "MIT"
 
 do_rootfs[depends] += "virtual/kernel:do_populate_sysroot"
 
-require recipes-rk/images/rk-image-base.bb
-#require recipes-core/images/rockchip-basic-image.bb
-#require recipes-rk/images/rk-image-multimedia.bb
-#require recipes-graphics/images/core-image-weston.bb
+#require recipes-rk/images/rk-image-base.bb
+require recipes-rk/images/rk-image-multimedia.bb
 
-#IMAGE_FEATURES_remove = "splash"
+IMAGE_FEATURES_remove = " splash"
 
 
 COMMON_INSTALL = " \
@@ -18,24 +16,13 @@ COMMON_INSTALL = " \
 	qtdeclarative \
 	qtmultimedia \
 	qtsvg \
-	qtsensors \
 	qtimageformats \
-	qtsystems \
-	qtscript \
-	qt3d \
-	qtgraphicaleffects \
-	qtconnectivity \
-	qtlocation \
-	qtquickcontrols \
-	qtquickcontrols2 \
 "
 
 
 QT_DEMOS = " \
 	qt5everywheredemo \
 "
-
-#	
 
 IMAGE_INSTALL += " \
 	${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'qtwayland', '', d)} \
@@ -44,6 +31,8 @@ IMAGE_INSTALL += " \
 	autostart \
 	packagegroup-fonts-truetype \
 	sqlite3 \
+	dhcpcd \
+	ca-certificates \
 	 \
 "
 
@@ -53,12 +42,18 @@ IMAGE_INSTALL += " \
 IMAGE_INSTALL += " \
 	rsync \
 	i2c-tools \
+	usbutils \
 "
+
 FEATURE_INSTALL_remove = " \
 	apt \
 "
 
-# XXX skip the following package due to build problems
 IMAGE_INSTALL_remove = " \
-	gstreamer1.0-libav \
+	autostart \
 "
+
+# XXX skip the following package due to build problems
+#IMAGE_INSTALL_remove = " \
+#	gstreamer1.0-libav \
+#"
