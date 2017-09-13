@@ -25,6 +25,8 @@ QT_DEMOS = " \
 "
 
 IMAGE_INSTALL += " \
+	kernel-modules \
+	packagegroup-base \
 	${@bb.utils.contains('DISTRO_FEATURES', 'wayland', 'qtwayland', '', d)} \
 	${COMMON_INSTALL} \
 	${QT_DEMOS} \
