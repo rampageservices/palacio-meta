@@ -30,6 +30,9 @@ file://0012-Export-rockchip_pmu_set_idle_request-for-out-of-tree.patch \
 file://0013-clk-rockchip-rk3288-prefer-vdpu-for-vcodec-clock-sou.patch \
 file://0014-ARMbian-RK3288-DTSI-changes.patch \
 file://0019-The-ASUS-Tinkerboard-reboot-patch.patch \
+file://0030-Add-support-for-Rockchip-Soc-LVDS.patch \
+file://0000-v5-1-2-doc-cx2092x-Add-DT-bingings-doc-for-CX2092X-DSP.patch \
+file://0000-v5-2-2-ASoC-Add-support-for-Conexant-CX2092X-DSP.patch \
 "
 
 SRCREV = "v4.12"
