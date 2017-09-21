@@ -15,12 +15,12 @@ SRC_URI=" \
 "
 
 
-FILES_${PN} = "/lib/firmware/rtlbt/*"
+FILES_${PN} = "/lib/firmware/rtlwifi/*"
 
 do_install() {
-    install -d ${D}/lib/firmware/rtlbt
-    install -m 0644 ${WORKDIR}/rtl8723bs_ap_wowlan.bin ${D}/lib/firmware/rtlbt
-    install -m 0644 ${WORKDIR}/rtl8723bs_bt.bin ${D}/lib/firmware/rtlbt
-    install -m 0644 ${WORKDIR}/rtl8723bs_nic.bin ${D}/lib/firmware/rtlbt
-    install -m 0644 ${WORKDIR}/rtl8723bs_wowlan.bin ${D}/lib/firmware/rtlbt
+    install -d ${D}/lib/firmware/rtlwifi
+    install -m 0644 ${WORKDIR}/rtl8723bs_ap_wowlan.bin ${D}/lib/firmware/rtlwifi
+    install -m 0644 ${WORKDIR}/rtl8723bs_bt.bin ${D}/lib/firmware/rtlwifi
+    install -m 0644 ${WORKDIR}/rtl8723bs_nic.bin ${D}/lib/firmware/rtlwifi
+    install -m 0644 ${WORKDIR}/rtl8723bs_wowlan.bin ${D}/lib/firmware/rtlwifi
 }
