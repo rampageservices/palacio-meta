@@ -10,6 +10,7 @@ SRC_URI = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git"
 SRC_URI += " \
 file://defconfig \
 file://rk3288-tinkerboard.dts \
+file://rk3288-palacio.dts \
 "
 
 # FROMLIST PATCH
