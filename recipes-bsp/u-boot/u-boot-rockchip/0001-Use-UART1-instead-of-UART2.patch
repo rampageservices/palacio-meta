@@ -1,0 +1,46 @@
+commit 4ef6c9f663ce76545e9a646a3d224555c81346b9
+Author: Alexey Roslyakov <alexey.roslyakov@gmail.com>
+Date:   Tue Sep 19 05:47:17 2017 +0000
+
+    Use UART1 instead of UART2
+
+diff --git a/arch/arm/dts/rk3288-tinker.dts b/arch/arm/dts/rk3288-tinker.dts
+index ea2f715..6e643ec 100644
+--- a/arch/arm/dts/rk3288-tinker.dts
++++ b/arch/arm/dts/rk3288-tinker.dts
+@@ -12,7 +12,7 @@
+ 	compatible = "rockchip,rk3288-tinker", "rockchip,rk3288";
+ 
+ 	chosen {
+-		stdout-path = &uart2;
++		stdout-path = &uart1;
+ 	};
+ };
+ 
+@@ -43,7 +43,7 @@
+ };
+ 
+
+-&uart2 {
++&uart1 {
+ 	u-boot,dm-pre-reloc;
+ 	reg-shift = <2>;
+ };
+--- a/configs/tinker-rk3288_defconfig
++++ b/configs/tinker-rk3288_defconfig
+@@ -1,5 +1,6 @@
+ CONFIG_ARM=y
+ CONFIG_ARCH_ROCKCHIP=y
++CONFIG_BOOTDELAY=0
+ CONFIG_SYS_MALLOC_F_LEN=0x2000
+ CONFIG_ROCKCHIP_RK3288=y
+ CONFIG_ROCKCHIP_SPL_BACK_TO_BROM=y
+@@ -59,7 +60,7 @@ CONFIG_REGULATOR_RK8XX=y
+ CONFIG_PWM_ROCKCHIP=y
+ CONFIG_RAM=y
+ CONFIG_SPL_RAM=y
+-CONFIG_DEBUG_UART_BASE=0xff690000
++CONFIG_DEBUG_UART_BASE=0xff190000
+ CONFIG_DEBUG_UART_CLOCK=24000000
+ CONFIG_DEBUG_UART_SHIFT=2
+ CONFIG_SYS_NS16550=y
