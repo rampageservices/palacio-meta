@@ -44,71 +44,35 @@
 
 #include "rk3288.dtsi"
 #include <dt-bindings/input/input.h>
+#include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/clock/rockchip,rk808.h>
 
 / {
-	model = "Rockchip RK3288 Tinker Board";
-	compatible = "asus,rk3288-tinker", "rockchip,rk3288";
+	model = "Rockchip RK3288 Palacio";
+	compatible = "palacio,rk3288-palacio", "rockchip,rk3288";
 
 	memory@0 {
 		reg = <0x0 0x80000000>;
 		device_type = "memory";
 	};
 
-	/* Since wlan-platdata do NOT exist in this kernel,
-	   I don't know if the 'compatible' part is really
-	   necessary... */
-	wireless-wlan {
-		compatible = "wlan-platdata";
-		rockchip,grf = <&grf>;
-		wifi_chip_type = "8723bs";
-		sdio_vref = <1800>;
-		WIFI,host_wake_irq = <&gpio4 30 GPIO_ACTIVE_HIGH>;
-		status = "okay";
-	};
-
-	ext_gmac: external-gmac-clock {
-		compatible = "fixed-clock";
-		#clock-cells = <0>;
-		clock-frequency = <125000000>;
-		clock-output-names = "ext_gmac";
-	};
-
-	gpio-keys {
-		compatible = "gpio-keys";
-		#address-cells = <1>;
-		#size-cells = <0>;
-		autorepeat;
-
-		pinctrl-names = "default";
-		pinctrl-0 = <&pwrbtn>;
-
-		button@0 {
-			gpios = <&gpio0 RK_PA5 GPIO_ACTIVE_LOW>;
-			linux,code = <KEY_POWER>;
-			label = "GPIO Key Power";
-			linux,input-type = <1>;
-			wakeup-source;
-			debounce-interval = <100>;
-		};
-	};
-
-	gpio-leds {
+	leds {
 		compatible = "gpio-leds";
 
-		act-led {
-			gpios=<&gpio1 RK_PD0 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger="mmc0";
+		work {
+			gpios = <&gpio8 RK_PA1 GPIO_ACTIVE_LOW>;
+			label = "palacio:green:work";
+			linux,default-trigger = "heartbeat";
+			pinctrl-names = "default";
+			pinctrl-0 = <&work_led>;
 		};
 
-		heartbeat-led {
-			gpios=<&gpio1 RK_PD1 GPIO_ACTIVE_HIGH>;
-			linux,default-trigger="heartbeat";
-		};
-
-		pwr-led {
-			gpios = <&gpio0 RK_PA3 GPIO_ACTIVE_HIGH>;
+		power {
+			gpios = <&gpio8 RK_PA2 GPIO_ACTIVE_LOW>;
+			label = "palacio:green:power";
 			linux,default-trigger = "default-on";
+			pinctrl-names = "default";
+			pinctrl-0 = <&power_led>;
 		};
 	};
 
@@ -118,9 +82,9 @@
 		simple-audio-card,name = "rockchip,tinker-codec";
 		simple-audio-card,mclk-fs = <512>;
 
-		simple-audio-card,codec {
+		/*simple-audio-card,codec {
 			sound-dai = <&hdmi>;
-		};
+		};*/
 
 		simple-audio-card,cpu {
 			sound-dai = <&i2s>;
@@ -138,7 +102,7 @@
 
 	vcc_sd: sdmmc-regulator {
 		compatible = "regulator-fixed";
-		gpio = <&gpio7 11 GPIO_ACTIVE_LOW>;
+		gpio = <&gpio7 RK_PB3 GPIO_ACTIVE_LOW>; /* XXX GPIO_PB3 */
 		pinctrl-names = "default";
 		pinctrl-0 = <&sdmmc_pwr>;
 		regulator-name = "vcc_sd";
@@ -153,7 +117,7 @@
 		clocks = <&rk808 RK808_CLKOUT1>;
 		clock-names = "ext_clock";
 		pinctrl-names = "default";
-		pinctrl-0 = <&chip_enable_h>, <&wifi_enable_h>;
+		pinctrl-0 = <&wifi_reg_on>;
 
 		/*
 		 * On the module itself this is one of these (depending
@@ -163,31 +127,83 @@
 		 */
 		reset-gpios = <&gpio4 RK_PD4 GPIO_ACTIVE_LOW>, <&gpio4 RK_PD3 GPIO_ACTIVE_LOW>;
 	};
+
+	vcc_flash: flash-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_flash";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&vcc_io>;
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		brightness-levels = <0 4 8 16 32 64 128 255>;
+		default-brightness-level = <4>;
+		enable-gpios = <&gpio7 RK_PB4 GPIO_ACTIVE_HIGH>; /* FIXME PMUGPIO0_B3 */
+		pinctrl-names = "default";
+		pinctrl-0 = <&bl_en>;
+		pwms = <&pwm0 0 1000000 PWM_POLARITY_INVERTED>;
+		status = "okay";
+	};
+
+	lvds_panel: lvds-panel {
+		compatible ="lvds-panel";
+		backlight = <&backlight>;
+		enable-gpios = <&gpio7 4 GPIO_ACTIVE_HIGH>;
+		pinctrl-0 = <&work_led>;
+		status = "okay";
+
+		width-mm = <261>;
+		height-mm = <163>;
+
+		data-mapping = "jeida-24";
+
+		panel-timing {
+			/* 1280x800 @60Hz */
+			clock-frequency = <71000000>;
+			hactive = <1080>;
+			vactive = <1920>;
+			hsync-len = <70>;
+			hfront-porch = <20>;
+			hback-porch = <70>;
+			vsync-len = <5>;
+			vfront-porch = <3>;
+			vback-porch = <15>;
+		};
+
+		ports {
+			panel_in_lvds: endpoint {
+				remote-endpoint = <&lvds_out_panel>;
+			};
+		};
+	};
 };
 
 &cpu0 {
 	cpu0-supply = <&vdd_cpu>;
 };
 
-&gmac {
-	assigned-clocks = <&cru SCLK_MAC>;
-	assigned-clock-parents = <&ext_gmac>;
-	clock_in_out = "input";
-	phy-mode = "rgmii";
-	phy-supply = <&vcc33_lan>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&rgmii_pins>;
-	snps,reset-gpio = <&gpio4 7 0>;
-	snps,reset-active-low;
-	snps,reset-delays-us = <0 10000 1000000>;
-	tx_delay = <0x30>;
-	rx_delay = <0x10>;
-	status = "ok";
-};
+&lvds {
+	rockchip,data-mapping = "jeida";
+	rockchip,data-width = <24>;
+	rockchip,output = "lvds";
+	status = "disable";
 
-&hdmi {
-	ddc-i2c-bus = <&i2c5>;
-	status = "okay";
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		lvds_out: port@1 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			reg = <1>;
+
+			lvds_out_panel: endpoint@0 {
+				reg = <0>;
+				remote-endpoint = <&panel_in_lvds>;
+			};
+		};
+	};
 };
 
 &i2c0 {
@@ -389,9 +405,10 @@
 
 &i2c2 {
 	status = "okay";
-	eeprom:m24c08@50 {
-		compatible = "at,24c08";
-		reg = <0x50>;
+	codec: cx20921@41 {
+		compatible = "cnxt,cx20921";
+		reg = <0x41>;
+		reset-gpios = <&gpio1 23 0>; /* FIXME */
 	};
 };
 
@@ -412,25 +429,10 @@
 	status = "okay";
 };
 
-&spi2 {
-	status = "okay";
-	max-freq = <50000000>;
-	spidev@0 {
-		compatible = "rockchip,spi_tinker";
-		reg = <0>;
-		spi-max-frequency = <50000000>;
-		spi-cpha = <1>;
-	};
-	spidev@1 {
-		compatible = "rockchip,spi_tinker";
-		reg = <1>;
-		spi-max-frequency = <50000000>;
-		spi-cpha = <1>;
-	};
-};
 
 &sdio0 {
-	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
 	clock-frequency = <50000000>;
 	clock-freq-min-max = <200000 50000000>;
 	bus-width = <4>;
@@ -443,8 +445,50 @@
 	num-slots = <1>;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdio0_bus4 &sdio0_cmd &sdio0_clk>;
-	sd-uhs-sdr104;
 	supports-sdio;
+	status = "okay";
+
+	brcmf: bcrmf@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
+		interrupt-parent = <&gpio0>;
+		interrupts = <4 6 IRQ_TYPE_LEVEL_LOW>; /* AE8_SDIO0_INTN/GPIO4_D6 */
+		interrupt-names = "wifi-host-wake";
+	};
+};
+
+&emmc {
+	bus-width = <8>;
+	cap-mmc-highspeed;
+	disable-wp;
+	mmc-ddr-1_8v;
+	mmc-hs200-1_8v;
+	non-removable;
+	num-slots = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&emmc_clk>, <&emmc_cmd>, <&emmc_pwr>, <&emmc_bus8>;
+	vmmc-supply = <&vcc_io>;
+	vqmmc-supply = <&vcc_flash>;
+	status = "disabled";
+};
+
+&sdmmc {
+	bus-width = <4>;
+	cap-mmc-highspeed;
+	cap-sd-highspeed;
+	sd-uhs-sdr12;
+	sd-uhs-sdr25;
+	sd-uhs-sdr50;
+	sd-uhs-sdr104;
+	card-detect-delay = <200>;
+	disable-wp;			/* wp not hooked up */
+	num-slots = <1>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc_clk &sdmmc_cmd &sdmmc_cd &sdmmc_bus4>;
+	status = "okay";
+	supports-sd;
+	vmmc-supply = <&vcc33_sd>;
+	vqmmc-supply = <&vccio_sd>;
 
 };
 
@@ -467,19 +511,17 @@
 
 	backlight {
 		bl_en: bl-en {
-			rockchip,pins = <7 2 RK_FUNC_GPIO &pcfg_pull_none>;
+			rockchip,pins = <7 RK_PB4 RK_FUNC_GPIO &pcfg_pull_none>; /* XXX */
 		};
 	};
 
-	buttons {
-		pwrbtn: pwrbtn {
-			rockchip,pins = <0 5 RK_FUNC_GPIO &pcfg_pull_up>;
+	leds {
+		power_led: power-led {
+			rockchip,pins = <8 2 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
-	};
 
-	eth_phy {
-		eth_phy_pwr: eth-phy-pwr {
-			rockchip,pins = <0 6 RK_FUNC_GPIO &pcfg_pull_none>;
+		work_led: work-led {
+			rockchip,pins = <8 1 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -501,12 +543,8 @@
 	};
 
 	sdio-pwrseq {
-		wifi_enable_h: wifienable-h {
+		wifi_reg_on: wifi-reg-on {
 			rockchip,pins = <4 28 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-
-		chip_enable_h: chip-enable-h {
-			rockchip,pins = <4 27 RK_FUNC_GPIO &pcfg_pull_none>;
 		};
 	};
 
@@ -562,25 +600,6 @@
 &saradc {
 	vref-supply = <&vcc18_ldo1>;
 	status ="okay";
-};
-
-&sdmmc {
-	bus-width = <4>;
-	cap-mmc-highspeed;
-	cap-sd-highspeed;
-	sd-uhs-sdr12;
-	sd-uhs-sdr25;
-	sd-uhs-sdr50;
-	sd-uhs-sdr104;
-	card-detect-delay = <200>;
-	disable-wp;			/* wp not hooked up */
-	num-slots = <1>;
-	pinctrl-names = "default";
-	pinctrl-0 = <&sdmmc_clk &sdmmc_cmd &sdmmc_cd &sdmmc_bus4>;
-	status = "okay";
-	supports-sd;
-	vmmc-supply = <&vcc33_sd>;
-	vqmmc-supply = <&vccio_sd>;
 };
 
 &tsadc {
