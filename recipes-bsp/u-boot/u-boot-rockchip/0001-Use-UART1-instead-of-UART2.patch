@@ -35,12 +35,29 @@ index ea2f715..6e643ec 100644
  CONFIG_SYS_MALLOC_F_LEN=0x2000
  CONFIG_ROCKCHIP_RK3288=y
  CONFIG_ROCKCHIP_SPL_BACK_TO_BROM=y
-@@ -59,7 +60,7 @@ CONFIG_REGULATOR_RK8XX=y
+@@ -59,6 +60,7 @@ CONFIG_REGULATOR_RK8XX=y
  CONFIG_PWM_ROCKCHIP=y
  CONFIG_RAM=y
  CONFIG_SPL_RAM=y
 -CONFIG_DEBUG_UART_BASE=0xff690000
 +CONFIG_DEBUG_UART_BASE=0xff190000
++CONFIG_ROCKCHIP_SPL=y
  CONFIG_DEBUG_UART_CLOCK=24000000
  CONFIG_DEBUG_UART_SHIFT=2
- CONFIG_SYS_NS16550=y
+--- a/arch/arm/mach-rockchip/rk3288-board-spl.c
++++ b/arch/arm/mach-rockchip/rk3288-board-spl.c
+@@ -197,10 +197,10 @@
+ #define GRF_BASE	0xff770000
+ 	struct rk3288_grf * const grf = (void *)GRF_BASE;
+ 
+-	rk_clrsetreg(&grf->gpio7ch_iomux, GPIO7C7_MASK << GPIO7C7_SHIFT |
+-		     GPIO7C6_MASK << GPIO7C6_SHIFT,
+-		     GPIO7C7_UART2DBG_SOUT << GPIO7C7_SHIFT |
+-		     GPIO7C6_UART2DBG_SIN << GPIO7C6_SHIFT);
++	rk_clrsetreg(&grf->gpio5b_iomux, GPIO5B1_MASK << GPIO5B1_SHIFT |
++		     GPIO5B0_MASK << GPIO5B0_SHIFT,
++		     GPIO5B1_UART1BB_SOUT << GPIO5B1_SHIFT |
++		     GPIO5B0_UART1BB_SIN << GPIO5B0_SHIFT);
+ 	/*
+ 	 * Debug UART can be used from here if required:
+ 	 *
